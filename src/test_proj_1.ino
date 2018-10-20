@@ -38,7 +38,7 @@ void send_disarm() {
 }
 
 void loop() {
-  delay(1000);
+  delay(500);
 
   readBufOffset = 0;
   while(Serial.available()) {
@@ -90,6 +90,12 @@ void processBuffer() {
 
     } else if (root.containsKey("v_bat") && root.containsKey("cap_bat")) {
       handle.parse_battery_status(root["v_bat"], root["cap_bat"]);
+
+    } else if (root.containsKey("RTH")) {
+      handle.parse_RTH_status(root["RTH"]);
+
+    } else if (root.containsKey("DISARM")) {
+      handle.parse_DISARM_status(root["DISARM"]);
 
     } else {
       Serial.printlnf("Unknown key combination %s", readBuf);
