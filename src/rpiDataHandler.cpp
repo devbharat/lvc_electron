@@ -91,6 +91,7 @@ int rpiDataHandler::_command_Disarm(bool reset)
 		call_count++;
 
 		if (call_count >= 3) {  // Atleast need 3 calls to actually call disarm
+			call_count = 0;
 			return _command_Disarm_for_real();
 		}
 	}
