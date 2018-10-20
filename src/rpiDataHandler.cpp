@@ -13,6 +13,7 @@ rpiDataHandler::rpiDataHandler()
 	_lat = 0;
 	_lng = 0;
 	_alt = 0;
+	_cog = 0;
 
 	_v_bat = 0;
 	_cap_bat = 0;
@@ -42,6 +43,7 @@ void rpiDataHandler::initialize()
 	Particle.variable("lat", rpiDataHandler::_lat);
 	Particle.variable("lng", rpiDataHandler::_lng);
 	Particle.variable("alt", rpiDataHandler::_alt);
+	Particle.variable("cog", rpiDataHandler::_cog);
 
 	Particle.variable("v_bat", rpiDataHandler::_v_bat);
 	Particle.variable("cap_bat", rpiDataHandler::_cap_bat);
@@ -112,11 +114,12 @@ void rpiDataHandler::reset()
 }
 
 
-void rpiDataHandler::parse_position(double lat, double lng, double alt)
+void rpiDataHandler::parse_position(int32_t lat, int32_t lng, int32_t alt, int32_t cog)
 {
 	_lat = lat;
 	_lng = lng;
 	_alt = alt;
+	_cog = cog;
 }
 
 void rpiDataHandler::parse_vehicle_status(int armed_state, int main_state, int nav_state)

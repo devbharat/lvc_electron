@@ -109,8 +109,8 @@ void processBuffer() {
 
   } else {
     // Serial.println("worked elec");
-    if (root.containsKey("lat") && root.containsKey("lng") && root.containsKey("alt")) {
-      handle.parse_position(root["lat"], root["lng"], root["alt"]);
+    if (root.containsKey("lat") && root.containsKey("lng") && root.containsKey("alt") && root.containsKey("cog")) {
+      handle.parse_position(root["lat"], root["lng"], root["alt"], root["cog"]);
 
     } else if (root.containsKey("armed_state") && root.containsKey("main_state") && root.containsKey("nav_state")) {
       handle.parse_vehicle_status(root["armed_state"], root["main_state"], root["nav_state"]);
