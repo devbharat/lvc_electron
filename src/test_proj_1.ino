@@ -16,10 +16,13 @@ size_t readBufOffset_max = 0;
 size_t readBufOffset_total = 0;
 
 rpiDataHandler handle;
+int rc_switch_pin = D7;
 
 void setup() {
   /* Register handle to Cloud */
   handle.initialize();
+  pinMode(rc_switch_pin, OUTPUT);
+  Particle.function("switch_rc", switch_rc);
   Serial.begin(57600);
 }
 
@@ -36,6 +39,30 @@ void send_disarm() {
   root["command"] = "DISARM";
   root.printTo(Serial);
 }
+
+int pin_set(int val) {
+  if (val == 1) {
+    digitalWrite(rc_switch_pin, HIGH);
+    return 0;
+
+  } else {
+    digitalWrite(rc_switch_pin, LOW);
+    return 0;
+  }
+}
+
+int switch_rc(String command) {
+  if (command == "TAKEOFF") {
+    return pin_set(1);
+
+  } else if (command == "LAND") {
+    return pin_set(0);
+
+  } else {
+    return -1;
+  }
+}
+
 
 void loop() {
   delay(500);
