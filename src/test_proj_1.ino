@@ -113,9 +113,6 @@ void processBuffer() {
         if (root.containsKey("lat") && root.containsKey("lng") && root.containsKey("alt") && root.containsKey("cog")) {
             handle.parse_position(root["lat"], root["lng"], root["alt"], root["cog"]);
 
-        } else if (root.containsKey("v_bat") && root.containsKey("cap_bat")) {
-            handle.parse_battery_status(root["v_bat"], root["cap_bat"]);
-
         } else if (root.containsKey("RTH")) {
             handle.parse_RTH_status(root["RTH"]);
 
@@ -124,6 +121,9 @@ void processBuffer() {
 
         } else if (root.containsKey("base_mode") && root.containsKey("c_mode_h") && root.containsKey("c_mode_l")) {
             handle.parse_HB_status(root["base_mode"], root["c_mode_h"], root["c_mode_l"]);
+
+        } else if (root.containsKey("bat_v") && root.containsKey("bat_cap")) {
+            handle.parse_battery_status(root["bat_v"], root["bat_cap"]);
 
         } else {
             Serial.printlnf("Unknown key combination %s", readBuf);

@@ -129,7 +129,7 @@ void rpiDataHandler::parse_HB_status(const int32_t base_mode, const int32_t cust
     _custom_mode_low = custom_mode_low;
 }
 
-void rpiDataHandler::parse_battery_status(double v_bat, double cap_bat)
+void rpiDataHandler::parse_battery_status(int32_t v_bat, int32_t cap_bat)
 {
     _v_bat = v_bat;
     _cap_bat = cap_bat;

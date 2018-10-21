@@ -24,7 +24,7 @@ private:
 
 private:
     double _lat, _lng, _alt, _cog;
-    double _v_bat, _cap_bat;
+    int32_t _v_bat, _cap_bat;
     int32_t _base_mode;
     int32_t _custom_mode_high, _custom_mode_low;
 
@@ -49,7 +49,7 @@ public:
 
     /* Update local variables on receiving serialized ArduinoJson objects */
     void parse_position(const int32_t lat, const int32_t lng, const int32_t alt, const int32_t cog);
-    void parse_battery_status(const double v_bat, const double cap_bat);
+    void parse_battery_status(const int32_t v_bat, const int32_t cap_bat);
     void parse_RTH_status(const int result);
     void parse_DISARM_status(const int result);
     void parse_HB_status(const int32_t base_mode, const int32_t custom_mode_high, const int32_t custom_mode_low);
