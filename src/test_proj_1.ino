@@ -18,12 +18,24 @@ size_t readBufOffset_total = 0;
 rpiDataHandler handle;
 int rc_switch_pin = D7;
 
+// Battery Level
+FuelGauge fuel;
+double bat_soc = 0;
+int bat_soc_loop_ctr = 0;
+
 void setup() {
     /* Register handle to Cloud */
     handle.initialize();
+
     pinMode(rc_switch_pin, OUTPUT);
     switch_rc("TAKEOFF");    // initialize with takeoff RC
+
+    float bat_soc_fl = fuel.getSoC();
+    bat_soc = (double)((bat_soc_fl * 100)/100);
+    Particle.variable("elc_soc", bat_soc);
+
     Particle.function("switch_rc", switch_rc);
+
     Serial.begin(57600);
 }
 
@@ -98,6 +110,14 @@ void loop() {
 
     // handle.reset();
     // And repeat!
+
+    bat_soc_loop_ctr++;
+
+    if (bat_soc_loop_ctr >= 20) {  // With 500ms loop delay, 20 iterations is 10sec update rate
+        float bat_soc_fl = fuel.getSoC();
+        bat_soc = (double)((bat_soc_fl * 100)/100);
+        bat_soc_loop_ctr = 0;
+    }
 }
 
 void processBuffer() {
