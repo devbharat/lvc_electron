@@ -19,7 +19,8 @@ rpiDataHandler::rpiDataHandler()
     _cap_bat = 0;
 
     _base_mode = 0;
-    _custom_mode = 0;
+    _custom_mode_high = 0;
+    _custom_mode_low = 0;
 
     _do_rth = false;
     _do_disarm = false;
@@ -48,7 +49,8 @@ void rpiDataHandler::initialize()
     Particle.variable("cap_bat", rpiDataHandler::_cap_bat);
 
     Particle.variable("base_mode", rpiDataHandler::_base_mode);
-    Particle.variable("custom_mode", rpiDataHandler::_custom_mode);
+    Particle.variable("c_mode_h", rpiDataHandler::_custom_mode_high);
+    Particle.variable("c_mode_l", rpiDataHandler::_custom_mode_low);
 
     Particle.variable("RTH_OK", rpiDataHandler::_RTH_comm_success);
     Particle.variable("DISARM_OK", rpiDataHandler::_DISARM_comm_success);
@@ -120,10 +122,11 @@ void rpiDataHandler::parse_position(int32_t lat, int32_t lng, int32_t alt, int32
     _cog = cog;
 }
 
-void rpiDataHandler::parse_HB_status(const uint8_t base_mode, const uint32_t custom_mode)
+void rpiDataHandler::parse_HB_status(const int32_t base_mode, const int32_t custom_mode_high, const int32_t custom_mode_low)
 {
     _base_mode = base_mode;
-    _custom_mode = custom_mode;
+    _custom_mode_high = custom_mode_high;
+    _custom_mode_low = custom_mode_low;
 }
 
 void rpiDataHandler::parse_battery_status(double v_bat, double cap_bat)

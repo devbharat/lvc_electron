@@ -25,8 +25,8 @@ private:
 private:
     double _lat, _lng, _alt, _cog;
     double _v_bat, _cap_bat;
-    uint8_t _base_mode;
-    uint32_t _custom_mode;
+    int32_t _base_mode;
+    int32_t _custom_mode_high, _custom_mode_low;
 
     bool _do_rth;
     bool _do_disarm;
@@ -52,7 +52,7 @@ public:
     void parse_battery_status(const double v_bat, const double cap_bat);
     void parse_RTH_status(const int result);
     void parse_DISARM_status(const int result);
-    void parse_HB_status(const uint8_t base_mode, const uint32_t custom_mode);
+    void parse_HB_status(const int32_t base_mode, const int32_t custom_mode_high, const int32_t custom_mode_low);
 };
 
 

@@ -122,8 +122,8 @@ void processBuffer() {
         } else if (root.containsKey("DISARM")) {
             handle.parse_DISARM_status(root["DISARM"]);
 
-        } else if (root.containsKey("base_mode") && root.containsKey("custom_mode")) {
-            handle.parse_HB_status(root["base_mode"], root["custom_mode"]);
+        } else if (root.containsKey("base_mode") && root.containsKey("c_mode_h") && root.containsKey("c_mode_l")) {
+            handle.parse_HB_status(root["base_mode"], root["c_mode_h"], root["c_mode_l"]);
 
         } else {
             Serial.printlnf("Unknown key combination %s", readBuf);
