@@ -25,7 +25,8 @@ private:
 private:
     double _lat, _lng, _alt, _cog;
     double _v_bat, _cap_bat;
-    int _armed_state, _main_state, _nav_state;
+    uint8_t _base_mode;
+    uint32_t _custom_mode;
 
     bool _do_rth;
     bool _do_disarm;
@@ -44,14 +45,14 @@ public:
     void reset();
 
     bool do_RTH() {return _do_rth;};
-    bool do_disarm() {return _do_disarm;};    
+    bool do_disarm() {return _do_disarm;};
 
     /* Update local variables on receiving serialized ArduinoJson objects */
     void parse_position(const int32_t lat, const int32_t lng, const int32_t alt, const int32_t cog);
-    void parse_vehicle_status(const int armed_state, const int main_state, const int nav_state);
     void parse_battery_status(const double v_bat, const double cap_bat);
     void parse_RTH_status(const int result);
     void parse_DISARM_status(const int result);
+    void parse_HB_status(const uint8_t base_mode, const uint32_t custom_mode);
 };
 
 
