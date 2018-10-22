@@ -23,19 +23,18 @@ FuelGauge fuel;
 double bat_soc = 0;
 int bat_soc_loop_ctr = 0;
 
+// Particle connection status ctr
+int disconn_ctr = 0;
+
 void setup() {
     /* Register handle to Cloud */
     handle.initialize();
-
     pinMode(rc_switch_pin, OUTPUT);
     switch_rc("TAKEOFF");    // initialize with takeoff RC
-
     float bat_soc_fl = fuel.getSoC();
     bat_soc = (double)((bat_soc_fl * 100)/100);
     Particle.variable("elc_soc", bat_soc);
-
     Particle.function("switch_rc", switch_rc);
-
     Serial.begin(57600);
 }
 
@@ -50,6 +49,19 @@ void send_disarm() {
     StaticJsonBuffer<READ_BUF_SIZE> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     root["command"] = "DISARM";
+    root.printTo(Serial);
+}
+
+void send_HB(bool conn) {
+    StaticJsonBuffer<READ_BUF_SIZE> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    if (conn) {
+        root["HB"] = "CONN";
+
+    } else {
+        root["HB"] = "DCONN";
+    }
+    root["time"] = std::string(Time.format(TIME_FORMAT_ISO8601_FULL));
     root.printTo(Serial);
 }
 
@@ -78,7 +90,25 @@ int switch_rc(String command) {
 
 
 void loop() {
+    static bool once = false;
+    if (!once && Particle.connected()) {
+        Particle.keepAlive(30); // send a ping every 30 seconds
+        once = true;
+    }
+
     delay(500);
+    if (Particle.connected()) {
+        send_HB(true);
+        disconn_ctr = 0;  // Reset disconnect counter
+
+    } else {
+        send_HB(false);
+        disconn_ctr++;
+        if (disconn_ctr > 20) {
+            System.reset();  // Call Hard Reset on disconnection
+            disconn_ctr = 0;  // For completeness
+        }
+    }
 
     readBufOffset = 0;
     while(Serial.available()) {
@@ -99,6 +129,8 @@ void loop() {
             Serial.println("readBuf overflow, emptying buffer");
             readBufOffset = 0;
         }
+
+        Particle.process();  // keep cellular conn
     }
 
     if (handle.do_RTH()) {
