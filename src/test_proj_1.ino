@@ -97,18 +97,19 @@ void loop() {
     }
 
     delay(500);
-    if (Particle.connected()) {
-        send_HB(true);
-        disconn_ctr = 0;  // Reset disconnect counter
 
-    } else {
-        send_HB(false);
-        disconn_ctr++;
-        if (disconn_ctr > 20) {
-            System.reset();  // Call Hard Reset on disconnection
-            disconn_ctr = 0;  // For completeness
-        }
-    }
+//    if (Particle.connected()) {
+//        send_HB(true);
+//        disconn_ctr = 0;  // Reset disconnect counter
+//
+//    } else {
+//        send_HB(false);
+//        disconn_ctr++;
+//        if (disconn_ctr > 20) {
+//            System.reset();  // Call Hard Reset on disconnection
+//            disconn_ctr = 0;  // For completeness
+//        }
+//    }
 
     readBufOffset = 0;
     while(Serial.available()) {
@@ -130,7 +131,7 @@ void loop() {
             readBufOffset = 0;
         }
 
-        Particle.process();  // keep cellular conn
+        // Particle.process();  // keep cellular conn
     }
 
     if (handle.do_RTH()) {
@@ -143,13 +144,13 @@ void loop() {
     // handle.reset();
     // And repeat!
 
-    bat_soc_loop_ctr++;
-
-    if (bat_soc_loop_ctr >= 20) {  // With 500ms loop delay, 20 iterations is 10sec update rate
-        float bat_soc_fl = fuel.getSoC();
-        bat_soc = (double)((bat_soc_fl * 100)/100);
-        bat_soc_loop_ctr = 0;
-    }
+//    bat_soc_loop_ctr++;
+//
+//    if (bat_soc_loop_ctr >= 20) {  // With 500ms loop delay, 20 iterations is 10sec update rate
+//        float bat_soc_fl = fuel.getSoC();
+//        bat_soc = (double)((bat_soc_fl * 100)/100);
+//        bat_soc_loop_ctr = 0;
+//    }
 }
 
 void processBuffer() {
