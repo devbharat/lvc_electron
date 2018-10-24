@@ -116,10 +116,10 @@ void rpiDataHandler::reset()
 
 void rpiDataHandler::parse_position(int32_t lat, int32_t lng, int32_t alt, int32_t cog)
 {
-    _lat = lat;
-    _lng = lng;
-    _alt = alt;
-    _cog = cog;
+    _lat = lat * 0.0000001;
+    _lng = lng * 0.0000001;
+    _alt = alt * 0.001;
+    _cog = cog * 0.01;
 }
 
 void rpiDataHandler::parse_HB_status(const int32_t base_mode, const int32_t custom_mode_high, const int32_t custom_mode_low)
