@@ -7,7 +7,6 @@
 
 #include <ArduinoJson.h>
 #include "rpiDataHandler.h"
-// #include "google-maps-device-locator.h"
 
 // Globals
 const size_t READ_BUF_SIZE = 512;
@@ -27,8 +26,6 @@ int bat_soc_loop_ctr = 0;
 // Particle connection status ctr
 int disconn_ctr = 0;
 
-// GoogleMapsDeviceLocator locator;
-
 void setup() {
     /* Register handle to Cloud */
     handle.initialize();
@@ -40,7 +37,7 @@ void setup() {
     bat_soc = (double)((bat_soc_fl * 100)/100);
     Particle.variable("elc_soc", bat_soc);
     Particle.function("switch_rc", switch_rc);
-    // locator.withLocatePeriodic(5); 
+
     Serial.begin(57600);
 }
 
@@ -104,7 +101,6 @@ void loop() {
 
     delay(500);
 
-    // locator.loop();
     handle.loop();
 
 //    if (Particle.connected()) {
@@ -174,8 +170,6 @@ void processBuffer() {
         // Serial.println("worked elec");
         if (root.containsKey("lat") && root.containsKey("lng") && root.containsKey("alt") && root.containsKey("cog")) {
             handle.parse_position(root["lat"], root["lng"], root["alt"], root["cog"]);
-            // locator.update_lat(root["lat"]);
-            // locator.update_lon(root["lng"]);            
 
         } else if (root.containsKey("RTH")) {
             handle.parse_RTH_status(root["RTH"]);
