@@ -34,6 +34,20 @@ private:
     bool _RTH_comm_success;
     bool _DISARM_comm_success;
 
+    static const int CONNECT_WAIT_STATE = 0;
+    static const int CONNECTED_WAIT_STATE = 2;
+    static const int CONNECTED_STATE = 3;
+    static const int IDLE_STATE = 4;
+
+    unsigned long periodMs;
+    String eventName;
+    unsigned long stateTime;
+    int state;
+    unsigned long waitAfterConnect;
+
+    const char *getDataChar();
+    void publishLocation();
+
 public:
     rpiDataHandler();
     ~rpiDataHandler();
@@ -41,11 +55,16 @@ public:
     /* Register the cloud variables and functions */
     void initialize();
 
+    void setPeriodic(unsigned long secondsPeriodic);
+    void setEventName(const char *name);
+
     /* Reset Json object */
     void reset();
 
     bool do_RTH() {return _do_rth;};
     bool do_disarm() {return _do_disarm;};
+
+    void loop();
 
     /* Update local variables on receiving serialized ArduinoJson objects */
     void parse_position(const int32_t lat, const int32_t lng, const int32_t alt, const int32_t cog);

@@ -7,11 +7,14 @@
 #include "Particle.h"
 #include "rpiDataHandler.h"
 
-rpiDataHandler::rpiDataHandler()
+static char rBuf[256];
+
+rpiDataHandler::rpiDataHandler() : periodMs(10000), eventName("DL"),
+    stateTime(0), state(CONNECT_WAIT_STATE), waitAfterConnect(8000)
 {
     _initialization_complete = false;
-    _lat = 0;
-    _lng = 0;
+    _lat = 2.5164;  // Mwanza
+    _lng = 32.9175;  // Mwanza
     _alt = 0;
     _cog = 0;
 
@@ -160,3 +163,71 @@ void rpiDataHandler::parse_DISARM_status(const int result)
     _command_Disarm(true);
 }
 
+void rpiDataHandler::loop()
+{
+    switch(state) {
+    case CONNECT_WAIT_STATE:
+        if (Particle.connected()) {
+            state = CONNECTED_WAIT_STATE;
+            stateTime = millis();
+        }
+        break;
+
+    case CONNECTED_WAIT_STATE:
+        if (millis() - stateTime >= waitAfterConnect) {
+                state = CONNECTED_STATE;
+                stateTime = millis() - periodMs;
+        }
+        break;
+
+    case CONNECTED_STATE:
+        if (Particle.connected()) {
+            if (millis() - stateTime >= periodMs) {
+                stateTime = millis();
+                publishLocation();
+            }
+        }
+        else {
+            // We have disconnected, rec
+            state = CONNECT_WAIT_STATE;
+        }
+        break;
+
+
+    case IDLE_STATE:
+        // Just hang out here forever (entered only on LOCATOR_MODE_ONCE)
+        break;
+    }
+
+}
+
+void rpiDataHandler::setPeriodic(unsigned long secondsPeriodic)
+{
+    if (secondsPeriodic < 2) {
+        secondsPeriodic = 2;
+    }
+    periodMs = secondsPeriodic * 1000;
+}
+
+void rpiDataHandler::setEventName(const char *name)
+{
+    this->eventName = name;
+}
+
+void rpiDataHandler::publishLocation()
+{
+    Serial.println("publishLocationClean");
+
+    const char *outData = getDataChar();
+    Serial.printlnf("Data=%s", outData);
+
+    if (Particle.connected()) {
+        Particle.publish(eventName, outData, PRIVATE);
+    }
+}
+
+const char *rpiDataHandler::getDataChar()
+{
+    snprintf(rBuf, sizeof(rBuf), "%s,%s,%s,%s", String(_lat).c_str(), String(_lng).c_str(), String(_alt).c_str(), String(_cog).c_str());
+    return rBuf;
+}
