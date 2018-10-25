@@ -1,5 +1,18 @@
 #include "geoFence.h"
 
+
+AC_PolyFence_loader::AC_PolyFence_loader() : current_pos(0, 0), checkTime(0)
+{
+    fence_valid = false;
+    position_updated = false;
+    geofence_breached = false;
+    checkTime = millis();
+}
+
+AC_PolyFence_loader::~AC_PolyFence_loader()
+{
+}
+
 /*
   maximum number of fencepoints
  */
@@ -8,45 +21,51 @@ uint8_t AC_PolyFence_loader::max_points() const
     return MAX_POINTS_GEOFENCE;
 }
 
-// create buffer to hold copy of eeprom points in RAM
-// returns nullptr if not enough memory can be allocated
-void* AC_PolyFence_loader::create_point_array(uint8_t element_size)
+bool AC_PolyFence_loader::init()
 {
-    uint32_t array_size = max_points() * element_size;
-    return calloc(1, array_size);
-}
-
-// load boundary point from eeprom, returns true on successful load
-bool AC_PolyFence_loader::load_point_from_eeprom(uint16_t i, Vector2l& point)
-{
-    // sanity check index
-    if (i >= max_points()) {
-        return false;
+    if (check_fence_boundary()) {
+        fence_valid = true;
+        return true;
     }
 
-    /*
-    // read fence point
-    point.x = fence_storage.read_uint32(i * sizeof(Vector2l));
-    point.y = fence_storage.read_uint32(i * sizeof(Vector2l) + sizeof(uint32_t));
-    */
-    return true;
+    return false;
 }
 
-// save a fence point to eeprom, returns true on successful save
-bool AC_PolyFence_loader::save_point_to_eeprom(uint16_t i, const Vector2l& point)
+bool AC_PolyFence_loader::check_fence_boundary()
 {
-    // sanity check index
-    if (i >= max_points()) {
-        return false;
-    }
-
-    /*
-    // write point to eeprom
-    fence_storage.write_uint32(i * sizeof(Vector2l), point.x);
-    fence_storage.write_uint32(i * sizeof(Vector2l)+sizeof(uint32_t), point.y);
-    */
-    return true;
+    return c_1.enable_fence && boundary_valid(c_1.num_points, c_1.points, false);
 }
+
+bool AC_PolyFence_loader::fence_breached()
+{
+    if (fence_valid) {
+        return boundary_breached(current_pos, c_1.num_points, c_1.points, false);
+
+    } else {
+        return false; // Never breach invalid fence
+    }
+}
+
+void AC_PolyFence_loader::loop_check()
+{
+    if (millis() - checkTime >= GEOFENCE_LOOP_INTERVAL) {  // 1 sec
+        checkTime = millis();
+        if (position_updated && fence_valid) {
+            geofence_breached = fence_breached();
+        }
+    }
+}
+
+void AC_PolyFence_loader::setPosition(int32_t lat, int32_t lng)
+{
+    current_pos.x = lat;
+    current_pos.y = lng;
+
+    if (!position_updated) {
+        position_updated = true;
+    }
+}
+
 
 // validate array of boundary points (expressed as either floats or long ints)
 //   contains_return_point should be true for plane which stores the return point as the first point in the array

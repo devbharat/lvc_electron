@@ -13,8 +13,8 @@ rpiDataHandler::rpiDataHandler() : periodMs(10000), eventName("DL"),
     stateTime(0), state(CONNECT_WAIT_STATE), waitAfterConnect(8000)
 {
     _initialization_complete = false;
-    _lat = 2.5164;  // Mwanza
-    _lng = 32.9175;  // Mwanza
+    _lat = 0;  // Mwanza
+    _lng = 0;  // Mwanza
     _alt = 0;
     _cog = 45;
 
@@ -216,11 +216,7 @@ void rpiDataHandler::setEventName(const char *name)
 
 void rpiDataHandler::publishLocation()
 {
-    Serial.println("publishLocationClean");
-
     const char *outData = getDataChar();
-    Serial.printlnf("Data=%s", outData);
-
     if (Particle.connected()) {
         Particle.publish(eventName, outData, PRIVATE);
     }

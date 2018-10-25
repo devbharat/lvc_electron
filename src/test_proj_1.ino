@@ -27,9 +27,11 @@ int bat_soc_loop_ctr = 0;
 // Particle connection status ctr
 int disconn_ctr = 0;
 
-const Vector2l cords[6] = {Vector2l(0, 0), Vector2l(5, 0), Vector2l(5, 5), Vector2l(0, 5), Vector2l(0, 0)};
+// const Vector2l cords[6] = {Vector2l(0, 0), Vector2l(5, 0), Vector2l(5, 5), Vector2l(0, 5), Vector2l(0, 0)};
 
 AC_PolyFence_loader fence;
+bool fence_ok = false;
+bool geofence_rth_done = false;
 
 void setup() {
     /* Register handle to Cloud */
@@ -40,8 +42,9 @@ void setup() {
     switch_rc("TAKEOFF");    // initialize with takeoff RC
     float bat_soc_fl = fuel.getSoC();
     bat_soc = (double)((bat_soc_fl * 100)/100);
-    Particle.variable("elc_soc", bat_soc);
+    Particle.variable("gf_rth_done", geofence_rth_done);
     Particle.function("switch_rc", switch_rc);
+    Particle.function("reset_grth", reset_grth_flag);
 
     Serial.begin(57600);
 
@@ -79,7 +82,28 @@ void setup() {
     Serial.println(ret6);
     Serial.println(ret7);
     Serial.println("----");
+
+    EEPROM.put(0, c_1);
+
+    delay(1);
+
+    EEPROM.get(0, c_1_r);
+
+    delay(1);
+    Serial.println("----");
+    Serial.println(c_1.point1.x);
+    Serial.println(c_1.point1.y);
+    Serial.println(c_1_r.point1.x);
+    Serial.println(c_1_r.point1.y);
+    Serial.println("----");
     */
+
+    if (fence.init()) {
+        fence_ok = true;
+
+    } else {
+        fence_ok = false;
+    }
 }
 
 void send_RTH() {
@@ -87,6 +111,28 @@ void send_RTH() {
     JsonObject &root = jsonBuffer.createObject();
     root["command"] = "RTH";
     root.printTo(Serial);
+    Particle.publish("SEND", "RTH", PRIVATE);
+}
+
+void send_RTH_geofence() {
+    if (!geofence_rth_done) {
+        send_RTH();
+        geofence_rth_done = true;
+        Particle.publish("SEND", "GRTH", PRIVATE);
+    }
+}
+
+int reset_grth_flag(String command) {
+    if (command == "DISABLE") {
+        geofence_rth_done = true;
+        return 0;
+
+    } else if (command == "ENABLE") {
+        geofence_rth_done = false;
+        return 0;
+    }
+
+    return -1;
 }
 
 void send_disarm() {
@@ -94,6 +140,7 @@ void send_disarm() {
     JsonObject &root = jsonBuffer.createObject();
     root["command"] = "DISARM";
     root.printTo(Serial);
+    Particle.publish("SEND", "DISARM", PRIVATE);
 }
 
 void send_HB(bool conn) {
@@ -142,7 +189,8 @@ void loop() {
 
     delay(500);
 
-    // handle.loop();
+    handle.loop();
+    fence.loop_check();
 
 //    if (Particle.connected()) {
 //        send_HB(true);
@@ -187,6 +235,10 @@ void loop() {
             send_disarm();
     }
 
+    if (fence.getGeoFenceBreached()) {
+        send_RTH_geofence();
+    }
+
     // handle.reset();
     // And repeat!
 
@@ -211,6 +263,7 @@ void processBuffer() {
         // Serial.println("worked elec");
         if (root.containsKey("lat") && root.containsKey("lng") && root.containsKey("alt") && root.containsKey("cog")) {
             handle.parse_position(root["lat"], root["lng"], root["alt"], root["cog"]);
+            fence.setPosition(root["lat"], root["lng"]);
 
         } else if (root.containsKey("RTH")) {
             handle.parse_RTH_status(root["RTH"]);
