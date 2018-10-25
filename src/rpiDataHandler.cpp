@@ -16,7 +16,7 @@ rpiDataHandler::rpiDataHandler() : periodMs(10000), eventName("DL"),
     _lat = 2.5164;  // Mwanza
     _lng = 32.9175;  // Mwanza
     _alt = 0;
-    _cog = 0;
+    _cog = 45;
 
     _v_bat = 0;
     _cap_bat = 0;
