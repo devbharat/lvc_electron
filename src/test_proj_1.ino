@@ -7,6 +7,7 @@
 
 #include <ArduinoJson.h>
 #include "rpiDataHandler.h"
+#include "geoFence.h"
 
 // Globals
 const size_t READ_BUF_SIZE = 512;
@@ -26,6 +27,10 @@ int bat_soc_loop_ctr = 0;
 // Particle connection status ctr
 int disconn_ctr = 0;
 
+const Vector2l cords[6] = {Vector2l(0, 0), Vector2l(5, 0), Vector2l(5, 5), Vector2l(0, 5), Vector2l(0, 0)};
+
+AC_PolyFence_loader fence;
+
 void setup() {
     /* Register handle to Cloud */
     handle.initialize();
@@ -39,6 +44,42 @@ void setup() {
     Particle.function("switch_rc", switch_rc);
 
     Serial.begin(57600);
+
+    /* TEST
+    bool ret = false;
+    ret = fence.boundary_valid(5, cords, false);
+
+    bool ret2 = false;
+    bool ret3 = false;
+    bool ret4 = false;
+    bool ret5 = false;
+    bool ret6 = false;
+    bool ret7 = false;
+    const Vector2l test_point1(2, 2);
+    const Vector2l test_point2(2, 4);
+    const Vector2l test_point3(2, 4.9999);
+    const Vector2l test_point4(2, 5.0);
+    const Vector2l test_point5(2, 5.0001);
+    const Vector2l test_point6(20, 15.0001);
+    ret2 = fence.boundary_breached(test_point1, 5, cords, false);
+    ret3 = fence.boundary_breached(test_point2, 5, cords, false);
+    ret4 = fence.boundary_breached(test_point3, 5, cords, false);
+    ret5 = fence.boundary_breached(test_point4, 5, cords, false);
+    ret6 = fence.boundary_breached(test_point5, 5, cords, false);
+    ret7 = fence.boundary_breached(test_point6, 5, cords, false);
+
+    delay(2);
+    Serial.println("----");
+    Serial.println(ret);
+    Serial.println("----");
+    Serial.println(ret2);
+    Serial.println(ret3);
+    Serial.println(ret4);
+    Serial.println(ret5);
+    Serial.println(ret6);
+    Serial.println(ret7);
+    Serial.println("----");
+    */
 }
 
 void send_RTH() {
@@ -101,7 +142,7 @@ void loop() {
 
     delay(500);
 
-    handle.loop();
+    // handle.loop();
 
 //    if (Particle.connected()) {
 //        send_HB(true);
