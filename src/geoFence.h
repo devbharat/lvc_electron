@@ -7,7 +7,8 @@
 #include "Particle.h"
 
 #define MAX_POINTS_GEOFENCE 10
-#define GEOFENCE_LOOP_INTERVAL 1000
+#define GEOFENCE_LOOP_INTERVAL 1000  // 1 sec
+#define GEOFENCE_PUB_INTERVAL 20000  // 20 sec
 
 class AC_PolyFence_loader
 {
@@ -26,11 +27,12 @@ private:
                                             Vector2l(0, 0)};
         int num_points = 5;  // Make sure the number match non zero points above
         bool enable_fence = true;  // Set to false to disable fence
+        int id = 1;  // Increment id if you change fence
     } c_1;
 
     Vector2l current_pos;
     bool fence_valid, position_updated;
-    unsigned long checkTime;
+    unsigned long checkTime, lastpubTime;
     bool geofence_breached;
 
 
@@ -49,6 +51,9 @@ public:
     void loop_check();
     void setPosition(int32_t lat, int32_t lng);
     bool getGeoFenceBreached() {return geofence_breached;};
+
+    void publishFence();
+    const char *getFenceDataChar();
 
     // validate array of boundary points (expressed as either floats or long ints)
     //   contains_return_point should be true for plane which stores the return point as the first point in the array

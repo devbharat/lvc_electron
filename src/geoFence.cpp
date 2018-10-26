@@ -1,12 +1,15 @@
 #include "geoFence.h"
 
+static char fBuf[512];
 
-AC_PolyFence_loader::AC_PolyFence_loader() : current_pos(0, 0), checkTime(0)
+
+AC_PolyFence_loader::AC_PolyFence_loader() : current_pos(0, 0), checkTime(0), lastpubTime(0)
 {
     fence_valid = false;
     position_updated = false;
     geofence_breached = false;
     checkTime = millis();
+    lastpubTime = millis();
 }
 
 AC_PolyFence_loader::~AC_PolyFence_loader()
@@ -54,6 +57,14 @@ void AC_PolyFence_loader::loop_check()
             geofence_breached = fence_breached();
         }
     }
+
+    if (millis() - lastpubTime >= GEOFENCE_PUB_INTERVAL) {  // 10 sec
+        lastpubTime = millis();
+        if (fence_valid) {
+            publishFence();
+        }
+    }
+
 }
 
 void AC_PolyFence_loader::setPosition(int32_t lat, int32_t lng)
@@ -66,6 +77,31 @@ void AC_PolyFence_loader::setPosition(int32_t lat, int32_t lng)
     }
 }
 
+void AC_PolyFence_loader::publishFence()
+{
+    const char *outData = getFenceDataChar();
+    if (Particle.connected()) {
+        Serial.printlnf("%s\n", outData);
+        Particle.publish("Fence", outData, PRIVATE);
+    }
+}
+
+const char *AC_PolyFence_loader::getFenceDataChar()
+{
+    String tmp = String(c_1.id) + "-";
+    tmp = tmp + String(c_1.num_points) + "_";
+    for (int i = 0; i < c_1.num_points; i++) {
+        float f_lat = c_1.points[i].x * 0.0000001;
+        float f_lon = c_1.points[i].y * 0.0000001;
+        tmp = tmp + String(f_lat) + "," + String(f_lon);
+        if (i != (c_1.num_points -1)) {
+            tmp = tmp + ":";
+        }
+    }
+
+    snprintf(fBuf, sizeof(fBuf), "%s", tmp.c_str());
+    return fBuf;
+}
 
 // validate array of boundary points (expressed as either floats or long ints)
 //   contains_return_point should be true for plane which stores the return point as the first point in the array

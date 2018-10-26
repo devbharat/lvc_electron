@@ -101,6 +101,8 @@ void setup() {
     if (fence.init()) {
         fence_ok = true;
 
+        fence.publishFence();
+
     } else {
         fence_ok = false;
     }
