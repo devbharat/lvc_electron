@@ -13,6 +13,7 @@
 class AC_PolyFence_loader
 {
 private:
+/*
     const struct fence_cord_1 {
         // Add your geofence points here
         Vector2l points[MAX_POINTS_GEOFENCE] = {Vector2l(473185540,84451760),
@@ -28,6 +29,23 @@ private:
         int num_points = 5;  // Make sure the number match non zero points above
         bool enable_fence = true;  // Set to false to disable fence
         int id = 1;  // Increment id if you change fence
+    } c_1;
+*/
+    const struct fence_cord_1 {
+        // Add your geofence points here
+        Vector2l points[MAX_POINTS_GEOFENCE] = {Vector2l(-24304590, 327449480),
+                                            Vector2l(-24404920, 327386850),
+                                            Vector2l(-24379200, 327318210),
+                                            Vector2l(-24258290, 327393710),
+                                            Vector2l(-24304590, 327449480),  // make sure the last point is same as first
+                                            Vector2l(0, 0),
+                                            Vector2l(0, 0),
+                                            Vector2l(0, 0),
+                                            Vector2l(0, 0),
+                                            Vector2l(0, 0)};
+        int num_points = 5;  // Make sure the number match non zero points above
+        bool enable_fence = true;  // Set to false to disable fence
+        int id = 2;  // Increment id if you change fence
     } c_1;
 
     Vector2l current_pos;

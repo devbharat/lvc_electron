@@ -118,7 +118,12 @@ void send_RTH() {
 
 void send_RTH_geofence() {
     if (!geofence_rth_done) {
-        send_RTH();
+        int retry_cnt = 0;
+        while (retry_cnt < 3) {
+            send_RTH();
+            delay(50);
+            retry_cnt = retry_cnt + 1;
+        }
         geofence_rth_done = true;
         Particle.publish("SEND", "GRTH", PRIVATE);
     }

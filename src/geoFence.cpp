@@ -88,7 +88,7 @@ void AC_PolyFence_loader::publishFence()
 
 const char *AC_PolyFence_loader::getFenceDataChar()
 {
-    String tmp = String(c_1.id) + "-";
+    String tmp = String(c_1.id) + ";";
     tmp = tmp + String(c_1.num_points) + "_";
     for (int i = 0; i < c_1.num_points; i++) {
         float f_lat = c_1.points[i].x * 0.0000001;
